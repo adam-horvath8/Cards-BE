@@ -7,7 +7,7 @@ END $$;
 CREATE TABLE IF NOT EXISTS "cities" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar(256),
-	"country_id" integer,
+	"country_id" integer NOT NULL,
 	"popularity" popularity
 );
 

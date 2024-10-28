@@ -4,10 +4,10 @@
   "license": "MIT",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "tsx watch -r dotenv/config src/index.ts",
+    "dev": "tsx watch -r dotenv/config src/db/index.ts",
     "introspect": "drizzle-kit introspect:pg",
     "generate": "drizzle-kit generate:pg",
-    "migrate": "tsx -r dotenv/config src/migrate.ts"
+    "migrate": "tsx -r dotenv/config src/db/migrate.ts"
   },
   "devDependencies": {
     "@types/express": "^4.17.2",

@@ -1,1 +1,0 @@
-ALTER TABLE "cities" ALTER COLUMN "country_id" SET NOT NULL;

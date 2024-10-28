@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "5e2d96b9-7159-49a8-922f-84b419f1f835",
+  "id": "8d1b4c45-c98e-4dc1-8dc2-1a7519ebf3a8",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "cities": {
@@ -24,7 +24,7 @@
           "name": "country_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "popularity": {
           "name": "popularity",
