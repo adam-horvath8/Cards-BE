@@ -15,6 +15,13 @@
       "when": 1730127154590,
       "tag": "0001_old_thunderbolt_ross",
       "breakpoints": false
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1732442261602,
+      "tag": "0002_same_cerise",
+      "breakpoints": false
     }
   ]
 }
