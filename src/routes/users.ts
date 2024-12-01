@@ -4,6 +4,7 @@ import db from "../db/db";
 import { User } from "../db/schema";
 import { loginSchema, registerSchema } from "../schemas/auth.ts";
 import validate from "../middleware/validate.ts";
+import isAuthorized from "../middleware/authorization.ts";
 import { eq } from "drizzle-orm";
 import jwt from "jsonwebtoken";
 
@@ -19,6 +20,12 @@ router.post("/auth/register", validate(registerSchema), async (req, res) => {
       email,
       password: hashedPassword,
     });
+
+    const accessToken = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "1h", subject: "accessApi" }
+    );
 
     return res
       .status(201)
@@ -54,18 +61,26 @@ router.post("/auth/login", validate(loginSchema), async (req, res) => {
       { expiresIn: "1h", subject: "accessApi" }
     );
 
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true, // Makes the cookie inaccessible to JavaScript
+      sameSite: "strict", // Protects against CSRF
+      maxAge: 60 * 60 * 1000, // 1 hour in milliseconds
+      path: "/", // Cookie is available for all paths
+    });
+
     // Respond with success (you may want to include a token or session logic here)
-    return res
-      .status(200)
-      .json({
-        message: "Login successful",
-        user: user.email,
-        userId: user.id,
-        accessToken,
-      });
+    return res.status(200).json({
+      message: "Login successful",
+      user: user.email,
+      userId: user.id,
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
+});
+
+router.get("/test", isAuthorized, (req, res) => {
+  return res.status(200).json({ message: "works" });
 });
 
 export default router;
