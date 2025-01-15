@@ -16,17 +16,39 @@ router.post("/auth/register", validate(registerSchema), async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await db.insert(User).values({
-      email,
-      password: hashedPassword,
-    });
+    const newUser = await db
+      .insert(User)
+      .values({
+        email,
+        password: hashedPassword,
+      })
+      .returning(); // Use .returning() to get the inserted user
+
+    const user = newUser[0]; // Get the inserted user (this is important to get the ID)
+
+    // Ensure that user.id is a string (convert if necessary)
+    const userId = user.id.toString();
 
     const accessToken = jwt.sign(
-      { userId: user.id },
+      { userId, email: user.email },
       process.env.JWT_SECRET as string,
-      { expiresIn: "1h", subject: "accessApi" }
+      {
+        expiresIn: "1h",
+        subject: "accessApi",
+        algorithm: "HS256",
+      }
     );
 
+    res.cookie("token", accessToken, {
+      httpOnly: true,
+      secure: false, // Set to true in production (HTTPS)
+      sameSite: "lax", // Required for cross-origin
+      maxAge: 60 * 60 * 1000,
+      path: "/",
+      // domain: process.env.COOKIE_DOMAIN,
+    });
+
+    // Send the final response
     return res
       .status(201)
       .json({ message: "User registered successfully", body: req.body.email });
@@ -61,11 +83,13 @@ router.post("/auth/login", validate(loginSchema), async (req, res) => {
       { expiresIn: "1h", subject: "accessApi" }
     );
 
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true, // Makes the cookie inaccessible to JavaScript
-      sameSite: "strict", // Protects against CSRF
-      maxAge: 60 * 60 * 1000, // 1 hour in milliseconds
-      path: "/", // Cookie is available for all paths
+    res.cookie("token", accessToken, {
+      httpOnly: true,
+      secure: false, // Set to true in production (HTTPS)
+      sameSite: "lax", // Required for cross-origin
+      maxAge: 60 * 60 * 1000,
+      path: "/",
+      // domain: process.env.COOKIE_DOMAIN,
     });
 
     // Respond with success (you may want to include a token or session logic here)
